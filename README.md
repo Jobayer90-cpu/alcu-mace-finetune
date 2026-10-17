@@ -126,35 +126,6 @@ The two fine-tuned models agree within about 2 standard deviations, so 17-18 × 
 
 Run 100 ps per temperature, or three independent 30 ps runs, which needs no new DFT. Report stress error. Add more volume structures and widen the range past ±4%. Sweep the loss weighting instead of trying two values. Repeat on a composition that exists so there is experimental data.
 
-## Reproduce
-
-Needs Quantum ESPRESSO 6.7+ and Python 3.10+ with ASE, mace-torch, NumPy, SciPy, Matplotlib.
-
-```bash
-git clone https://github.com/Jobayer90-cpu/alcu-mace-finetune.git
-cd alcu-mace-finetune
-pip install ase mace-torch matplotlib scipy
-```
-
-Analysis only, no DFT. Everything rebuilds from `data/data_labelled.xyz`.
-
-```bash
-python scripts/stage04.py    # split, test the downloaded model
-bash   scripts/stage05.sh    # fine-tune, ~16 min
-python scripts/stage06.py    # parity, energy-volume, breakdown
-python scripts/stage07.py    # molecular dynamics, ~4.5 h
-python scripts/stage08.py    # fit alpha
-```
-
-Including the DFT, about 14 hours on 32 cores:
-
-```bash
-python scripts/stage01.py      # relax the cell
-python scripts/stage02.py      # build the 30 structures
-python scripts/stage03.py 4 8  # DFT on all 30, 4 jobs x 8 ranks
-```
-
-**One trap.** Quantum ESPRESSO wants `OMP_NUM_THREADS=1`, MACE wants 16. Leaving it unset for a 64-rank QE job let every rank spawn its own thread pool, around 4000 threads on 32 cores, and it ran 40 times slower.
 
 ## Layout
 
@@ -170,9 +141,6 @@ python scripts/stage03.py 4 8  # DFT on all 30, 4 jobs x 8 ranks
 4. G. Prandini et al., Precision and efficiency in solid-state pseudopotential calculations, npj Comput. Mater. 4 (2018) 72. https://doi.org/10.1038/s41524-018-0127-2
 5. J.L. Murray, The Al−Cu system, Bull. Alloy Phase Diagrams 6 (1985) 86. https://doi.org/10.1007/BF02869224
 
-## Related
-
-[ti7al-sro](https://github.com/Jobayer90-cpu/ti7al-sro), how Al short-range order changes the stiffness and strength of Ti-7Al.
 
 ## Contact
 
